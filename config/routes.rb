@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  root to: 'sessions#index'
+  root to: 'units#index'
+
+  resources :units, only: %i[index create]
 end
