@@ -4,7 +4,7 @@ class UnitsController < ApplicationController
   end
 
   def create
-    @unit = Unit.new(unit_params)
+    @unit = Unit.new(modified_params)
 
     saved = @unit.save
 
@@ -15,5 +15,13 @@ class UnitsController < ApplicationController
 
   def unit_params
     params.require(:unit).permit(:file)
+  end
+
+  def modified_params
+    unit_params.merge!(content: content)
+  end
+
+  def content
+    params.dig(:unit, :file)&.read
   end
 end
