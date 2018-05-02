@@ -18,10 +18,17 @@ class UnitsController < ApplicationController
   end
 
   def modified_params
-    unit_params.merge!(content: content)
+    unit_params.tap do |uparams|
+      uparams.merge!(content: content)
+      uparams.merge!(encoded: encoded)
+    end
   end
 
   def content
-    params.dig(:unit, :file)&.read
+    @content ||= params.dig(:unit, :file)&.read
+  end
+
+  def encoded
+    Huffman::Encode.call(content: content).to_s
   end
 end

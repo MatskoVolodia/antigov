@@ -23,13 +23,13 @@ module Huffman
     def to_binary_string
       return "0#{left.to_binary_string}#{right.to_binary_string}"  if value.nil?
 
-      binary = value.encode('UTF-8').bytes.to_a[0].to_s(2)
+      binary = value.bytes.to_a[0].to_s(2)
 
       "1#{("0" * (8 - binary.length) + binary)}"
     end
 
     def full_subtree?
-      return value.present? if left.nil? && right.nil?
+      return !value.nil? if left.nil? && right.nil?
 
       left.full_subtree? && right.full_subtree?
     end

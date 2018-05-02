@@ -48,7 +48,6 @@ module Huffman
 
       while true
         code = input.slice!(0, 1)
-
         case code
           when '0'
             current.left  = Huffman::Node.new
@@ -62,11 +61,11 @@ module Huffman
             val = input.slice!(0, 8)
             current.value = Integer("0b#{val}").chr
 
-            while current.present? && (current.right.nil? || current.right.full_subtree?)
+            while !current.nil? && (current.right.nil? || current.right.full_subtree?)
               current = current.parent
             end
 
-            break if current.nil? || (current == root && current.right.value.present?)
+            break if current.nil? || (current == root && !current.right.value.nil?)
 
             current = current.right
         end
@@ -83,13 +82,13 @@ module Huffman
       current = root
       result  = ''
 
-      while ciphertext.length.positive?
+      while ciphertext.length > 0
         val = ciphertext.slice!(0, 1)
 
         current = current.left  if val == '0'
         current = current.right if val == '1'
 
-        if current.value.present?
+        if !current.value.nil?
           result += current.value
           current = root
         end
@@ -114,13 +113,13 @@ module Huffman
 
         break if current.value == char
 
-        if current.left.present? && current.left.is_a?(Huffman::Node) && !visited[current.left]
+        if !current.left.nil? && current.left.is_a?(Huffman::Node) && !visited[current.left]
           answer << 0
           current = current.left
           next
         end
 
-        if current.right.present? && current.right.is_a?(Huffman::Node) && !visited[current.right]
+        if !current.right.nil? && current.right.is_a?(Huffman::Node) && !visited[current.right]
           answer << 1
           current = current.right
           next
