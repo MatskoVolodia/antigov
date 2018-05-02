@@ -1,3 +1,6 @@
 = form_for @unit do |f|
   = f.file_field :file
   = f.submit
+
+- Unit.all.each do |unit|
+  = link_to(unit.title, unit_download_path(unit))
