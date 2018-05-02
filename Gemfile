@@ -9,6 +9,7 @@ end
 gem 'carrierwave-postgresql'
 gem 'rails', '~> 5.1.5'
 gem 'pg'
+gem 'awesome_print'
 gem 'puma', '~> 3.7'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'

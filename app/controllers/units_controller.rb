@@ -4,7 +4,7 @@ class UnitsController < ApplicationController
   end
 
   def create
-    @unit = Unit.new(unit_params)
+    @unit = Unit.new(modified_params)
 
     saved = @unit.save
 
@@ -15,5 +15,20 @@ class UnitsController < ApplicationController
 
   def unit_params
     params.require(:unit).permit(:file)
+  end
+
+  def modified_params
+    unit_params.tap do |uparams|
+      uparams.merge!(content: content)
+      uparams.merge!(encoded: encoded)
+    end
+  end
+
+  def content
+    @content ||= params.dig(:unit, :file)&.read
+  end
+
+  def encoded
+    Huffman::Encode.call(content: content).to_s
   end
 end
