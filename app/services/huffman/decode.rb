@@ -6,6 +6,10 @@ module Huffman
 
     def call
       Huffman::String.from_ciphertext(content)
+      #
+      # content.split('/').map do |c|
+      #   Huffman::String.from_ciphertext(c)
+      # end.join
     end
 
     private

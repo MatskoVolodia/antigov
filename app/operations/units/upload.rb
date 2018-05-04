@@ -9,22 +9,16 @@ module Units
     def call
       unit
 
-      Thread.new {
-        threads = []
-        result = []
+      load_constants
 
-        chunked_content.each_with_index do |chunk, index|
-          threads << Thread.new do
-            result << { encoded: encode(chunk), order: index }
-          end
-        end
-
-        threads.each { |thr| thr.join }
-
-        result.sort_by { |k| k[:order] }.reduce('', &method(:join_chunks)).tap do |joined|
-          unit.update(encoded: joined, status: :uploaded)
-        end
-      }
+      Chunker.call(
+        chunked_content: chunked_content,
+        single_handler:  :encode,
+        reducer:         :join_chunks,
+        final_handler:   :update_unit,
+        object:          self,
+        parallel:        true
+      )
     end
 
     private
@@ -56,7 +50,20 @@ module Units
     end
 
     def join_chunks(previous, current)
-      "#{previous}#{current[:encoded]}"
+      "#{previous}/#{current}"
+    end
+
+    def load_constants
+      Huffman::Tree
+      Huffman::Node
+      Huffman::String
+      Huffman::Encode
+      Huffman::Decode
+      Huffman::PriorityQueue
+    end
+
+    def update_unit(joined)
+      unit.update(encoded: joined, status: :uploaded)
     end
   end
 end

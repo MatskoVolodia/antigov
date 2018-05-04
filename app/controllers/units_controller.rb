@@ -13,7 +13,7 @@ class UnitsController < ApplicationController
 
   def download
     send_data(
-      Huffman::Decode.call(content: @unit.encoded).plaintext,
+      Units::Download.call(encoded: @unit.encoded),
       filename: @unit.title
     )
   end
