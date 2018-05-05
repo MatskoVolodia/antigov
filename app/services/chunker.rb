@@ -2,7 +2,7 @@ class Chunker < Callable
   def initialize(params = {})
     @chunked_content = params[:chunked_content]
     @single_handler  = params[:single_handler]
-    @reducer         = params[:reducer]
+    @chunks_handler  = params[:chunks_handler]
     @final_handler   = params[:final_handler]
     @object          = params[:object]
     @parallel        = params[:parallel]
@@ -26,13 +26,17 @@ class Chunker < Callable
 
     threads.each { |thr| thr.join }
 
-    result.sort_by { |k| k[:order] }
-      .map { |r| r[:result] }
-      .inject { |total, current| object.send(reducer, total, current) }
-      .tap { |joined| object.send(final_handler, joined) }
+    result.each { |chunk| object.send(chunks_handler, chunk) }
+
+    object.send(final_handler)
   end
 
   private
 
-  attr_accessor :chunked_content, :single_handler, :reducer, :final_handler, :object, :parallel
+  attr_accessor :chunked_content,
+                :single_handler,
+                :chunks_handler,
+                :final_handler,
+                :object,
+                :parallel
 end

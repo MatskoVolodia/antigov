@@ -1,7 +1,9 @@
 module Units
   class Download < ::Callable
+    include Constants
+
     def initialize(params = {})
-      @encoded = params[:encoded]
+      @unit   = params[:unit]
     end
 
     def call
@@ -10,7 +12,7 @@ module Units
       Chunker.call(
         chunked_content: chunked,
         single_handler:  :decode,
-        reducer:         :join_chunks,
+        chunks_handler:  :add_chunks,
         final_handler:   :handle,
         object:          self
       )
@@ -20,31 +22,28 @@ module Units
 
     private
 
-    attr_accessor :encoded, :plaintext
+    attr_accessor :unit, :plaintext
 
     def decode(chunk)
       ::Huffman::Decode.call(content: chunk).plaintext
     end
 
     def chunked
-      @chunked ||= encoded.split('/')
+      @chunked ||= unit.chunks.sort_by(&:order).map(&:encoded)
     end
 
-    def handle(result)
-      @plaintext = result
+    def handle
+      @plaintext = chunks.sort_by { |k| k[:order] }
+                         .map { |h| h[:result] }
+                         .join
     end
 
-    def join_chunks(previous, current)
-      "#{previous}#{current}"
+    def add_chunks(chunk)
+      chunks << chunk
     end
 
-    def load_constants
-      Huffman::Tree
-      Huffman::Node
-      Huffman::String
-      Huffman::Encode
-      Huffman::Decode
-      Huffman::PriorityQueue
+    def chunks
+      @chunks ||= []
     end
   end
 end

@@ -1,6 +1,8 @@
 module Units
   class Upload < ::Callable
-    CHUNK_SIZE = 500
+    include Constants
+
+    CHUNKS_COUNT = 500
 
     def initialize(params = {})
       @file_params = params[:file_params]
@@ -14,7 +16,7 @@ module Units
       Chunker.call(
         chunked_content: chunked_content,
         single_handler:  :encode,
-        reducer:         :join_chunks,
+        chunks_handler:  :create_chunks,
         final_handler:   :update_unit,
         object:          self,
         parallel:        true
@@ -28,7 +30,7 @@ module Units
 
     def chunked_content
       @chunked_content ||= content.split('')
-                             .each_slice(CHUNK_SIZE)
+                             .each_slice(chunk_size)
                              .to_a
                              .map(&:join)
     end
@@ -49,21 +51,16 @@ module Units
       @unit ||= Unit.create(title: title)
     end
 
-    def join_chunks(previous, current)
-      "#{previous}/#{current}"
+    def create_chunks(chunk)
+      Chunk.create(unit: unit, encoded: chunk[:result], order: chunk[:order])
     end
 
-    def load_constants
-      Huffman::Tree
-      Huffman::Node
-      Huffman::String
-      Huffman::Encode
-      Huffman::Decode
-      Huffman::PriorityQueue
+    def update_unit
+      unit.update(status: :uploaded)
     end
 
-    def update_unit(joined)
-      unit.update(encoded: joined, status: :uploaded)
+    def chunk_size
+      @chunks_size ||= content.length / CHUNKS_COUNT
     end
   end
 end

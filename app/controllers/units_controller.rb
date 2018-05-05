@@ -13,7 +13,7 @@ class UnitsController < ApplicationController
 
   def download
     send_data(
-      Units::Download.call(encoded: @unit.encoded),
+      Units::Download.call(unit: @unit),
       filename: @unit.title
     )
   end

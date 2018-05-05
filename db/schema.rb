@@ -10,16 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180502225516) do
+ActiveRecord::Schema.define(version: 20180505095939) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "chunks", force: :cascade do |t|
+    t.bigint "unit_id"
+    t.integer "order"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.binary "encoded"
+    t.index ["unit_id"], name: "index_chunks_on_unit_id"
+  end
 
   create_table "units", force: :cascade do |t|
     t.oid "file", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.binary "encoded"
     t.binary "title"
     t.integer "status", default: 0
   end
