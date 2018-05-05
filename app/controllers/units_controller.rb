@@ -1,34 +1,30 @@
 class UnitsController < ApplicationController
+  before_action :set_unit, only: %i[download]
+
   def index
     @unit = Unit.new
   end
 
   def create
-    @unit = Unit.new(modified_params)
+    Units::Upload.call(file_params: unit_params)
 
-    saved = @unit.save
+    redirect_to units_path
+  end
 
-    redirect_to units_path, notice: saved ? 'Successfully' : 'Failure'
+  def download
+    send_data(
+      Units::Download.call(unit: @unit),
+      filename: @unit.title
+    )
   end
 
   private
 
+  def set_unit
+    @unit ||= Unit.find_by(id: params[:unit_id])
+  end
+
   def unit_params
     params.require(:unit).permit(:file)
-  end
-
-  def modified_params
-    unit_params.tap do |uparams|
-      uparams.merge!(content: content)
-      uparams.merge!(encoded: encoded)
-    end
-  end
-
-  def content
-    @content ||= params.dig(:unit, :file)&.read
-  end
-
-  def encoded
-    Huffman::Encode.call(content: content).to_s
   end
 end
