@@ -5,11 +5,9 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-
-gem 'carrierwave-postgresql'
-gem 'rails', '~> 5.1.5'
-gem 'pg'
-gem 'awesome_print'
+gem 'rails', '5.1.0'
+gem 'activerecord-import'
+gem 'activerecord-jdbc-adapter', github: 'jruby/activerecord-jdbc-adapter'
 gem 'puma', '~> 3.7'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
@@ -17,6 +15,7 @@ gem 'coffee-rails', '~> 4.2'
 gem 'turbolinks', '~> 5'
 gem 'jbuilder', '~> 2.5'
 gem 'haml-rails'
+gem 'rails-ujs', '~> 5.1.0.beta1'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]

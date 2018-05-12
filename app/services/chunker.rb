@@ -6,29 +6,13 @@ class Chunker < Callable
     @final_handler   = params[:final_handler]
     @object          = params[:object]
     @parallel        = params[:parallel]
+    @count           = 0
   end
 
   def call
     return Thread.new { work } if parallel
 
     work
-  end
-
-  def work
-    threads = []
-    result = []
-
-    chunked_content.each_with_index do |chunk, index|
-      threads << Thread.new do
-        result << { result: object.send(single_handler, chunk), order: index }
-      end
-    end
-
-    threads.each { |thr| thr.join }
-
-    result.each { |chunk| object.send(chunks_handler, chunk) }
-
-    object.send(final_handler)
   end
 
   private
@@ -38,5 +22,25 @@ class Chunker < Callable
                 :chunks_handler,
                 :final_handler,
                 :object,
-                :parallel
+                :parallel,
+                :count
+
+  def work
+    chunked_content.each_with_index { |chunk, index| run_thread(chunk, index) }
+  end
+
+  def run_thread(chunk, index)
+    Thread.new do
+      object.send(chunks_handler, result: object.send(single_handler, chunk), order: index)
+
+      semaphore.synchronize do
+        @count += 1
+        object.send(final_handler) if @count == chunked_content.length
+      end
+    end
+  end
+
+  def semaphore
+    @semaphore ||= Mutex.new
+  end
 end

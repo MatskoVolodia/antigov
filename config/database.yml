@@ -1,6 +1,6 @@
 development:
   adapter: postgresql
-  pool: 5
+  pool: 50
   encoding: unicode
   database: my_application_development
   host: localhost

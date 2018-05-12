@@ -2,8 +2,6 @@ module Units
   class Upload < ::Callable
     include Constants
 
-    CHUNKS_COUNT = 500
-
     def initialize(params = {})
       @file_params = params[:file_params]
     end
@@ -52,15 +50,21 @@ module Units
     end
 
     def create_chunks(chunk)
-      Chunk.create(unit: unit, encoded: chunk[:result], order: chunk[:order])
+      chunks << Chunk.new(unit: unit, encoded: chunk[:result], order: chunk[:order])
     end
 
     def update_unit
+      puts "============== FINAL HANDLER #{unit.title}"
+      Chunk.import(chunks)
       unit.update(status: :uploaded)
     end
 
     def chunk_size
-      @chunks_size ||= content.length / CHUNKS_COUNT
+      @chunks_size ||= [1000, content.length].min
+    end
+
+    def chunks
+      @chunks ||= []
     end
   end
 end
