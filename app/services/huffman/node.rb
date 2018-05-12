@@ -21,7 +21,7 @@ module Huffman
     end
 
     def to_binary_string
-      return "0#{left.to_binary_string}#{right.to_binary_string}"  if value.nil?
+      return "0#{left.to_binary_string}#{right.to_binary_string}" if value.nil?
 
       binary = value.bytes.to_a[0].to_s(2)
 

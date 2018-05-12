@@ -3,7 +3,7 @@ module Units
     include Constants
 
     def initialize(params = {})
-      @unit   = params[:unit]
+      @unit = params[:unit]
     end
 
     def call
@@ -16,6 +16,8 @@ module Units
         final_handler:   :handle,
         object:          self
       )
+
+      sleep(1) until plaintext
 
       plaintext
     end
