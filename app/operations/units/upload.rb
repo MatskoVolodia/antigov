@@ -19,6 +19,11 @@ module Units
         object:          self,
         parallel:        true
       )
+
+      {
+        unit: unit,
+        key:  private_key
+      }
     end
 
     private
@@ -50,21 +55,42 @@ module Units
     end
 
     def create_chunks(chunk)
-      chunks << Chunk.new(unit: unit, encoded: chunk[:result], order: chunk[:order])
+      chunks << Chunk.new(
+        unit: unit,
+        encoded: to_base32(encrypted(chunk[:result])),
+        order: chunk[:order]
+      )
     end
 
     def update_unit
-      puts "============== FINAL HANDLER #{unit.title}"
       Chunk.import(chunks)
       unit.update(status: :uploaded)
     end
 
     def chunk_size
-      @chunks_size ||= [1000, content.length].min
+      @chunks_size ||= [500, content.length].min
     end
 
     def chunks
       @chunks ||= []
+    end
+
+    def encrypted(text)
+      RSA::Encrypt.call(value: text, private_key: keys[:private_enc])
+    end
+
+    def keys
+      @keys ||= RSA::KeyGenerator.call
+    end
+
+    def private_key
+      @private_key ||= Base64.encode64(
+        "#{unit.id}_#{keys[:private_dec].to_s}"
+      )
+    end
+
+    def to_base32(number)
+      number.to_i.to_s(32)
     end
   end
 end

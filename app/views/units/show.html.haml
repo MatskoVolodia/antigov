@@ -1,0 +1,7 @@
+%h3= "File title: #{@unit.title}"
+%h4= "Upload status: #{@unit.status}"
+
+%hr
+
+- if flash[:key]
+  %h4= "Your download key is: #{flash[:key]}"
