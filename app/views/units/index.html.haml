@@ -1,6 +1,14 @@
-= form_for @unit do |f|
-  = f.file_field :file
-  = f.submit
+.upload
+  %h3 Upload
+  = form_for @unit do |f|
+    = f.file_field :file
+    %br
+    = f.submit
 
-- Unit.all.each do |unit|
-  = link_to(unit.title, unit_download_path(unit))
+%hr
+
+.download
+  %h3 Download
+  = form_tag(unit_download_path(-1), method: :get) do
+    = text_field_tag :file_key, 'Your file code'
+    = submit_tag

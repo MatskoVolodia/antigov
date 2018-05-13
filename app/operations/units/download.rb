@@ -4,6 +4,7 @@ module Units
 
     def initialize(params = {})
       @unit = params[:unit]
+      @key  = params[:key]
     end
 
     def call
@@ -24,28 +25,39 @@ module Units
 
     private
 
-    attr_accessor :unit, :plaintext
+    attr_accessor :unit, :plaintext, :key
 
     def decode(chunk)
       ::Huffman::Decode.call(content: chunk).plaintext
     end
 
     def chunked
-      @chunked ||= unit.chunks.sort_by(&:order).map(&:encoded)
+      @chunked ||= unit.chunks.sort_by(&:order)
+        .map(&:encoded)
+        .map(&method(:from_base32))
+        .map(&method(:decrypted))
     end
 
     def handle
       @plaintext = chunks.sort_by { |k| k[:order] }
-                         .map { |h| h[:result] }
-                         .join
+        .map { |h| h[:result] }
+        .join
     end
 
     def add_chunks(chunk)
       chunks << chunk
     end
 
+    def decrypted(text)
+      RSA::Decrypt.call(cipher: text, private_key: key)
+    end
+
     def chunks
       @chunks ||= []
+    end
+
+    def from_base32(number)
+      number.to_i(32).to_s
     end
   end
 end
